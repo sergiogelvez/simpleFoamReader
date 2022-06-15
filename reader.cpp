@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector> 
 #include <fstream>
+#include <sstream>
+
 
 struct double3
 {
@@ -19,16 +21,74 @@ int main()
     // código para leer el vector
     int count{525520} ;
     int i;
-    vector<float3> MainVec;
-
+    int countV{0};
+    int corte{10};
+    vector<double3> VelVec, PosVec;
+    // Para leer las velocidades por celda
     ifstream myfile;
-    myfile.open("U", ios::binary | ios::in);
-        
-    // auto count = fileData.size();
-    cout << "El tamaño del archivo es: " << count << endl;
+    myfile.open("U", ios::in);
+    std::string line;
+    while (std::getline(myfile, line) && countV < corte)
+    {
+        auto pos1 = line.find_first_not_of(' ');
+        auto pos2 = line.find_last_not_of(' ');
+        // cout << pos1 << "," << pos2 << '\n';
+        if (line[pos1] == '(' && line[pos2] == ')')
+        {
+            line.erase(pos1,1);
+            line.erase(pos2-1,1);
+            std::istringstream iss(line);
+            double3 value;
+            if (!(iss >> value.x >> value.y >> value.z)) 
+            {
+                cout << "Error mugroso en el intento: " << countV;
+                cout << line << '\n';
 
+            } 
+            else
+            {
+                VelVec.push_back(value);
+            }
+            countV += 1;
+            cout << line << '\n';
+        } 
+    }    
+    // Paa leer los centros de las celdas, como aproxomación
+    int countC{0};
+    myfile.close();
+    myfile.open("C", ios::in);
+    while (std::getline(myfile, line) && countC < corte)
+    {
+        auto pos1 = line.find_first_not_of(' ');
+        auto pos2 = line.find_last_not_of(' ');
+        // cout << pos1 << "," << pos2 << '\n';
+        if (line[pos1] == '(' && line[pos2] == ')')
+        {
+            line.erase(pos1,1);
+            line.erase(pos2-1,1);
+            std::istringstream iss(line);
+            double3 value;
+            if (!(iss >> value.x >> value.y >> value.z)) 
+            {
+                cout << "Error mugroso en el intento: " << countC;
+                cout << line << '\n';
+
+            } 
+            else
+            {
+                
+                PosVec.push_back(value);
+            }
+            countC += 1;
+            cout << line << '\n';
+        } 
+    }
+
+    // auto count = fileData.size();
+    cout << "El tamaño del archivo es: " << countC << endl;
+    myfile.close();
     // hallar largo
-    myfile.seekg (0, myfile.end);
+    /* myfile.seekg (0, myfile.end);
     int length = myfile.tellg();
     myfile.seekg (0, myfile.beg);
 
@@ -53,10 +113,10 @@ int main()
             cout << "Error mugroso en el intento: " << i << '\n';
         }
 
-    }
+    } */
 
     // cerrar el archivo
-    myfile.close();
+    
 
 
     /*for (auto j : MainVec) // access by value, the type of j is float3
@@ -64,8 +124,9 @@ int main()
     */cout << '\n';
     // tamaño total en bytes del vector
     float3 value {0, 0 ,0} ;
-    size_t tamanno = sizeof(value) * MainVec.size() ;
-    cout << "El tamaño del vector completo es: " << MainVec.size() << '\n';
+    size_t tamanno = sizeof(value) * VelVec.size() ;
+    cout << "El tamaño del vector completo (vel) es: " << VelVec.size() << '\n';
+    cout << "El tamaño del vector completo (pos) es: " << PosVec.size() << '\n';
     cout << "El tamaño del vector completo (en bytes) es: " << tamanno << endl;
 
 
